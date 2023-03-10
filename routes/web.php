@@ -16,3 +16,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+use App\Http\Controllers\UserAuthController;
+Route::get('/getCSRFToken',[UserAuthController::class,'getCSRFToken']);
+Route::group(['prefix'=>'user'],function(){
+    Route::group(['prefix'=>'auth'],function(){
+        Route::get('/sign-up',[UserAuthController::class,'signUpPage']);
+        Route::post('/sign-up',[UserAuthController::class,'signUpProcess']);
+    });
+});
