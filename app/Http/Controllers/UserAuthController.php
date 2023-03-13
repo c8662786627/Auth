@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+
 use App\Models\User;
 
 class UserAuthController extends Controller
@@ -131,8 +133,41 @@ class UserAuthController extends Controller
        return response()->json(true);
        //return redirect('login')->with('success', '註冊成功請重新登入！');
     }
+    public function signInPage()
+    {
+        //
+        $binding = [
+            'title'=>'登入',
+        ];
+        return view('auth\signIn',$binding);
+    }
     public function signInProcess(){
+        
+        $input = request()->validate([
+            'email'=>'required|email|max:150',
+            'password'=>'required|min:6',
+        ]);
+       
+    
+        $user = User::where('email',$input['email'])->firstorFail();
 
+        if(Auth::attempt($input)){
+
+           session()->put('user_id',$user->user_id);
+           
+           //return response()->json(true);
+           //登入成功就導回造訪頁面，沒有就導向首頁
+           return redirect()->intended('/');
+        }else{
+            $error=[
+                'msg'=>'登入失敗',
+            ];
+            return redirect('user/auth/sign-in')->withErrors($error)->withInput();
+        };
+    }
+    public function signout(){
+        session()->forget('user_id');
+        return redirect('user/auth/sign-in');
     }
     public function getCSRFToken(){
         return csrf_token();

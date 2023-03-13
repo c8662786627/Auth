@@ -12,10 +12,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    return view('welcome');
-});
+use App\Http\Controllers\HomeController;
+Route::get('/',[HomeController::class,'homePage']);
 
 
 use App\Http\Controllers\UserAuthController;
@@ -24,5 +22,8 @@ Route::group(['prefix'=>'user'],function(){
     Route::group(['prefix'=>'auth'],function(){
         Route::get('/sign-up',[UserAuthController::class,'signUpPage']);
         Route::post('/sign-up',[UserAuthController::class,'signUpProcess']);
+        Route::get('/sign-in',[UserAuthController::class,'signInPage']);
+        Route::post('/sign-in',[UserAuthController::class,'signInProcess']);
+        Route::get('/sign-out',[UserAuthController::class,'signOut']);
     });
 });
