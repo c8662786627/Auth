@@ -154,10 +154,17 @@ class UserAuthController extends Controller
         if(Auth::attempt($input)){
 
            session()->put('user_id',$user->user_id);
-           
-           //return response()->json(true);
+          /* $usertoken = request() -> user();
+           $tokenResult = $usertoken -> createToken('Token');
+           $tokenResult->token()->save();*/
+            $user = Auth::user();
+            $tokenResult = $user->createToken('Token');
+            $accessToken = $tokenResult->token;
+            $accessToken->save(); // 将访问令牌保存到数据库中
+          
+           return response(['token'=>$accessToken]);
            //登入成功就導回造訪頁面，沒有就導向首頁
-           return redirect()->intended('/');
+           //return redirect()->intended('/');
         }else{
             $error=[
                 'msg'=>'登入失敗',
@@ -165,9 +172,13 @@ class UserAuthController extends Controller
             return redirect('user/auth/sign-in')->withErrors($error)->withInput();
         };
     }
-    public function signout(){
+    public function signOut(){
         session()->forget('user_id');
-        return redirect('user/auth/sign-in');
+        request()->user()->token()->revoke();
+        response(
+            ['msg'=>'成功登出',]
+        );
+        //return redirect('user/auth/sign-in');
     }
     public function getCSRFToken(){
         return csrf_token();
